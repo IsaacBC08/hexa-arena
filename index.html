@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hexa Arena</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <h1>Hexa Arena</h1>
+    <p>Turno del jugador: <span id="jugador-actual">X</span></p>
+    <div id="timer">0</div>
+    <div id="tablero-base">
+      <!-- Tableros individuales -->
+      <div class="micro-tablero" id="a"></div>
+      <div class="micro-tablero" id="b"></div>
+      <div class="micro-tablero" id="c"></div>
+      <div class="micro-tablero" id="d"></div>
+      <div class="micro-tablero" id="e"></div>
+      <div class="micro-tablero" id="f"></div>
+      <div class="micro-tablero" id="g"></div>
+      <div class="micro-tablero" id="h"></div>
+      <div class="micro-tablero" id="i"></div>
+    </div>
+    <div id="informacion">
+      <button id="reiniciar">Reiniciar Juego</button>
+    </div>
+
+    <div id="modal-victoria" class="modal" aria-labelledby="mensaje-victoria">
+      <div class="modal-content">
+        <h2 id="mensaje-victoria"></h2>
+        <button id="close-modal">Volver a jugar</button>
+      </div>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
+

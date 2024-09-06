@@ -1,0 +1,255 @@
+/* Estilos generales */
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #e0f7fa;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+}
+
+/* Títulos */
+h1 {
+    margin-top: 20px;
+    font-size: 2.5em;
+    color: #00796b;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+p {
+    font-size: 1.5em;
+    margin-top: 20px;
+    color: #00796b;
+    font-weight: bold;
+    text-align: center;
+}
+
+/* Contenedores */
+#tablero-base {
+    display: grid;
+    grid-template-columns: repeat(3, 200px);
+    grid-template-rows: repeat(3, 200px);
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.micro-tablero {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    background-color: #ffffff;
+    border-radius: 10px;
+    border: 4px solid #00796b;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.micro-tablero:not(.bloqueado):hover {
+    transform: scale(1.05);
+    border-color: #00acc1;
+}
+
+.micro-tablero div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2.5em;
+    border: 1px solid #00796b;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    color: #000;
+}
+
+.micro-tablero div:hover {
+    background-color: #b2ebf2;
+}
+
+.micro-tablero div.ficha-x {
+    color: #d32f2f; /* Rojo más vibrante para las X */
+}
+
+.micro-tablero div.ficha-o {
+    color: #1976d2; /* Azul más vibrante para las O */
+}
+
+.micro-tablero .ganador {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 5em;
+    font-weight: bold;
+    background-color: rgba(255, 255, 255, 0.9);
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.micro-tablero .ganador.X {
+    color: #d32f2f;
+}
+
+.micro-tablero .ganador.O {
+    color: #1976d2;
+}
+
+#informacion {
+    margin-top: 20px;
+    font-size: 1.2em;
+}
+
+#timer {
+    font-size: 2em;
+    font-weight: bold;
+    color: #388e3c; /* Color inicial verde */
+    padding: 10px 20px;
+    background-color: #ffffff;
+    border: 3px solid #388e3c;
+    border-radius: 10px;
+    text-align: center;
+    margin-top: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: color 0.5s ease, border-color 0.5s ease;
+}
+
+#timer.warning {
+    color: #fbc02d; /* Amarillo cuando el tiempo es bajo */
+    border-color: #fbc02d;
+}
+
+#timer.danger {
+    color: #d32f2f; /* Rojo cuando el tiempo es crítico */
+    border-color: #d32f2f;
+    animation: blink 1s infinite; /* Parpadeo al estar en tiempo crítico */
+}
+
+/* Estilo para el indicador del turno */
+#jugador-actual {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #00796b;
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+/* Estilo para el turno del jugador X */
+#jugador-actual.x-turno {
+    color: #d32f2f; /* Color rojo para el jugador X */
+    transform: scale(1.1); /* Efecto de escala para resaltar el turno */
+}
+
+/* Estilo para el turno del jugador O */
+#jugador-actual.o-turno {
+    color: #1976d2; /* Color azul para el jugador O */
+    transform: scale(1.1); /* Efecto de escala para resaltar el turno */
+}
+
+/* Botones */
+button {
+    padding: 12px 24px;
+    font-size: 1em;
+    cursor: pointer;
+    background-color: #00796b;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    margin-top: 20px;
+}
+
+button:hover {
+    background-color: #004d40;
+    transform: translateY(-2px);
+}
+
+/* Estados bloqueados */
+.bloqueado {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.bloqueado div {
+    cursor: not-allowed;
+}
+
+/* Modal de Victoria */
+.modal {
+    display: none; /* Ocultar por defecto */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Asegurarse de que esté encima de otros elementos */
+}
+
+.modal-content {
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    width: 300px; /* Ajusta el ancho según sea necesario */
+    max-width: 90%; /* Asegura que el modal no sea más ancho que el 90% de la ventana */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    animation: slideInFromTop 0.5s ease-out;
+    position: relative;
+}
+
+.modal-content h2 {
+    margin: 0 0 10px;
+    font-size: 1.5em;
+    color: #00796b;
+}
+
+.modal-content button {
+    padding: 10px 20px;
+    font-size: 1em;
+    cursor: pointer;
+    background-color: #00796b;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.modal-content button:hover {
+    background-color: #004d40;
+    transform: translateY(-2px);
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideInFromTop {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes blink {
+    0%, 100% {
+        background-color: #ffffff;
+    }
+    50% {
+        background-color: #ffe0e0;
+    }
+}
