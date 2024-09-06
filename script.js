@@ -1,15 +1,45 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const TIEMPO_INICIAL = 30;
+    // Configuración inicial
+    const TIEMPO_INICIAL = 3;
     let move = new Audio('play.mp3');
-    let wind_zone = new Audio('win_zone.mp3')
-    wind_zone.volume = 0.5
+    let wind_zone = new Audio('win_zone.mp3');
+    wind_zone.volume = 0.5;
     let tiempoRestante = TIEMPO_INICIAL;
     let temporizador;
 
+    // Elementos del DOM
+    const tableroDivs = document.querySelectorAll(".micro-tablero");
+    const jugadorActualSpan = document.getElementById("jugador-actual");
+    const reiniciarBtn = document.getElementById("reiniciar");
+    const modalVictoria = document.getElementById("modal-victoria");
+    const mensajeVictoria = document.getElementById("mensaje-victoria");
+    const btnReiniciarModal = document.getElementById("close-modal");
+    const timerElement = document.getElementById("timer");
+
+    // Estado del juego
+    let tableroBase = {
+        'a': Array(9).fill(''),
+        'b': Array(9).fill(''),
+        'c': Array(9).fill(''),
+        'd': Array(9).fill(''),
+        'e': Array(9).fill(''),
+        'f': Array(9).fill(''),
+        'g': Array(9).fill(''),
+        'h': Array(9).fill(''),
+        'i': Array(9).fill('')
+    };
+
+    let tablerosGanados = {
+        'a': '', 'b': '', 'c': '', 'd': '', 'e': '', 'f': '', 'g': '', 'h': '', 'i': ''
+    };
+
+    let jugadorActual = "X";
+    let siguienteMicroTablero = null;
+
+    // Funciones de Temporizador
     function actualizarTiempoUI() {
         timerElement.textContent = tiempoRestante;
-    
-        // Cambiar el estilo según el tiempo restante
+
         if (tiempoRestante <= 10) {
             timerElement.classList.add('danger');
             timerElement.classList.remove('warning');
@@ -32,45 +62,29 @@ document.addEventListener("DOMContentLoaded", () => {
                 clearInterval(temporizador);
                 realizarJugadaAleatoria();
             }
-        }, 1000);
+        }, 10);
     }
 
-    let tableroBase = {
-        'a': Array(9).fill(''),
-        'b': Array(9).fill(''),
-        'c': Array(9).fill(''),
-        'd': Array(9).fill(''),
-        'e': Array(9).fill(''),
-        'f': Array(9).fill(''),
-        'g': Array(9).fill(''),
-        'h': Array(9).fill(''),
-        'i': Array(9).fill('')
-    };
+    // Función de Jugada Aleatoria
+    function realizarJugadaAleatoria() {
+        let posiblesMicroTableros = siguienteMicroTablero === null
+            ? Object.keys(tableroBase).filter(id => tablerosGanados[id] === '' && hayMovimientosDisponibles(id))
+            : [siguienteMicroTablero];
 
-    let tablerosGanados = {
-        'a': '', 'b': '', 'c': '', 'd': '', 'e': '', 'f': '', 'g': '', 'h': '', 'i': ''
-    };
-
-    let jugadorActual = "X";
-    let siguienteMicroTablero = null;
-
-    const tableroDivs = document.querySelectorAll(".micro-tablero");
-    const jugadorActualSpan = document.getElementById("jugador-actual");
-    const reiniciarBtn = document.getElementById("reiniciar");
-    const modalVictoria = document.getElementById("modal-victoria");
-    const mensajeVictoria = document.getElementById("mensaje-victoria");
-    const btnReiniciarModal = document.getElementById("close-modal");
-    const timerElement = document.getElementById("timer");
-
-    tableroDivs.forEach((tableroDiv) => {
-        for (let i = 0; i < 9; i++) {
-            const casilla = document.createElement("div");
-            casilla.dataset.index = i;
-            tableroDiv.appendChild(casilla);
-            casilla.addEventListener("click", () => manejarJugada(tableroDiv.id, i));
+        if (posiblesMicroTableros.length === 0) {
+            return;
         }
-    });
 
+        let microTableroSeleccionado = posiblesMicroTableros[Math.floor(Math.random() * posiblesMicroTableros.length)];
+        let posiblesCasillas = tableroBase[microTableroSeleccionado].map((valor, index) => valor === '' ? index : null).filter(index => index !== null);
+
+        if (posiblesCasillas.length > 0) {
+            let casillaSeleccionada = posiblesCasillas[Math.floor(Math.random() * posiblesCasillas.length)];
+            realizarJugada(microTableroSeleccionado, casillaSeleccionada);
+        }
+    }
+
+    // Funciones de Juego
     function manejarJugada(microTablero, index) {
         if (tablerosGanados[microTablero] !== '' || (siguienteMicroTablero !== null && siguienteMicroTablero !== microTablero)) {
             return;
@@ -83,9 +97,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function realizarJugada(microTablero, index) {
         tableroBase[microTablero][index] = jugadorActual;
-        move.play()
+        move.play();
         actualizarUI();
-
 
         if (verificarVictoria(tableroBase[microTablero])) {
             marcarVictoria(microTablero);
@@ -110,7 +123,6 @@ document.addEventListener("DOMContentLoaded", () => {
         jugadorActualSpan.textContent = jugadorActual;
         actualizarEstadoCursor();
         reiniciarTemporizador();
-        
     }
 
     function actualizarUI() {
@@ -121,7 +133,7 @@ document.addEventListener("DOMContentLoaded", () => {
             tableroDiv.innerHTML = '';
 
             if (tablerosGanados[microTableroId] !== '') {
-                tableroDiv.innerHTML = <div class="ganador ${tablerosGanados[microTableroId]}">${tablerosGanados[microTableroId]}</div>;
+                tableroDiv.innerHTML = `<div class="ganador ${tablerosGanados[microTableroId]}">${tablerosGanados[microTableroId]}</div>`;
             } else {
                 for (let i = 0; i < 9; i++) {
                     const casilla = document.createElement("div");
@@ -138,17 +150,9 @@ document.addEventListener("DOMContentLoaded", () => {
     function actualizarEstadoCursor() {
         tableroDivs.forEach(tableroDiv => {
             if (siguienteMicroTablero === null) {
-                if (tablerosGanados[tableroDiv.id] === '') {
-                    tableroDiv.classList.remove("bloqueado");
-                } else {
-                    tableroDiv.classList.add("bloqueado");
-                }
+                tableroDiv.classList.toggle("bloqueado", tablerosGanados[tableroDiv.id] !== '');
             } else {
-                if (tableroDiv.id === siguienteMicroTablero && tablerosGanados[tableroDiv.id] === '') {
-                    tableroDiv.classList.remove("bloqueado");
-                } else {
-                    tableroDiv.classList.add("bloqueado");
-                }
+                tableroDiv.classList.toggle("bloqueado", tableroDiv.id !== siguienteMicroTablero || tablerosGanados[tableroDiv.id] !== '');
             }
         });
     }
@@ -178,7 +182,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function marcarVictoria(microTableroId) {
         tablerosGanados[microTableroId] = jugadorActual;
-        wind_zone.play()
+        wind_zone.play();
         actualizarUI();
     }
 
@@ -211,62 +215,51 @@ document.addEventListener("DOMContentLoaded", () => {
         return tableroBase[microTableroId].some(casilla => casilla === '');
     }
 
-    function mostrarModalVictoria(ganador, empate = false) {
+    function mostrarModalVictoria(jugador, empate = false) {
+        // Mostrar mensaje de victoria o empate
         if (empate) {
-            mensajeVictoria.textContent = "¡El juego ha terminado en empate!";
+            mensajeVictoria.textContent = "¡Es un empate!";
         } else {
-            mensajeVictoria.textContent = ¡El jugador ${ganador} ha ganado el juego!;
+            mensajeVictoria.textContent = `¡${jugador} ha ganado la Arena Central!`;
         }
-        modalVictoria.style.display = "flex";
+    
+        // Mostrar el modal (solo una vez)
+        modalVictoria.style.display = "flex"; // O utiliza "block" si es necesario, pero no ambos
+    
+        // Detener el temporizador
+        clearInterval(temporizador);
     }
+    
 
     function reiniciarJuego() {
-        Object.keys(tableroBase).forEach(key => {
-            tableroBase[key] = Array(9).fill('');
-            tablerosGanados[key] = '';
-        });
-        jugadorActual = "X";
+        tableroBase = {
+            'a': Array(9).fill(''),
+            'b': Array(9).fill(''),
+            'c': Array(9).fill(''),
+            'd': Array(9).fill(''),
+            'e': Array(9).fill(''),
+            'f': Array(9).fill(''),
+            'g': Array(9).fill(''),
+            'h': Array(9).fill(''),
+            'i': Array(9).fill('')
+        };
+
+        tablerosGanados = {
+            'a': '', 'b': '', 'c': '', 'd': '', 'e': '', 'f': '', 'g': '', 'h': '', 'i': ''
+        };
+
         siguienteMicroTablero = null;
+        jugadorActual = "X";
         jugadorActualSpan.textContent = jugadorActual;
         actualizarUI();
-        actualizarEstadoCursor();
         reiniciarTemporizador();
         modalVictoria.style.display = "none";
     }
 
-
-    function realizarJugadaAleatoria() {
-        let movimientosDisponibles = [];
-
-        if (siguienteMicroTablero === null) {
-            Object.keys(tableroBase).forEach(microTableroId => {
-                if (tablerosGanados[microTableroId] === '') {
-                    tableroBase[microTableroId].forEach((casilla, index) => {
-                        if (casilla === '') {
-                            movimientosDisponibles.push({ microTablero: microTableroId, index });
-                        }
-                    });
-                }
-            });
-        } else {
-            const microTableroId = siguienteMicroTablero;
-            if (tablerosGanados[microTableroId] === '') {
-                tableroBase[microTableroId].forEach((casilla, index) => {
-                    if (casilla === '') {
-                        movimientosDisponibles.push({ microTablero: microTableroId, index });
-                    }
-                });
-            }
-        }
-
-        if (movimientosDisponibles.length > 0) {
-            const movimientoAleatorio = movimientosDisponibles[Math.floor(Math.random() * movimientosDisponibles.length)];
-            realizarJugada(movimientoAleatorio.microTablero, movimientoAleatorio.index);
-        }
-    }
-
+    // Eventos
     reiniciarBtn.addEventListener("click", reiniciarJuego);
     btnReiniciarModal.addEventListener("click", reiniciarJuego);
 
+    // Inicialización
     reiniciarJuego();
 });
