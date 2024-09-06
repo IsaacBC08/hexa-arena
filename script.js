@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
     // Configuración inicial
-    const TIEMPO_INICIAL = 3;
+    const TIEMPO_INICIAL = 30;
     let move = new Audio('play.mp3');
     let wind_zone = new Audio('win_zone.mp3');
     wind_zone.volume = 0.5;
@@ -62,7 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 clearInterval(temporizador);
                 realizarJugadaAleatoria();
             }
-        }, 10);
+        }, 1000);
     }
 
     // Función de Jugada Aleatoria
@@ -232,6 +232,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
 
     function reiniciarJuego() {
+        // Reiniciar el tablero base
         tableroBase = {
             'a': Array(9).fill(''),
             'b': Array(9).fill(''),
@@ -243,17 +244,36 @@ document.addEventListener("DOMContentLoaded", () => {
             'h': Array(9).fill(''),
             'i': Array(9).fill('')
         };
-
+    
+        // Reiniciar los tableros ganados
         tablerosGanados = {
             'a': '', 'b': '', 'c': '', 'd': '', 'e': '', 'f': '', 'g': '', 'h': '', 'i': ''
         };
-
+    
+        // Reiniciar variables de control
         siguienteMicroTablero = null;
         jugadorActual = "X";
         jugadorActualSpan.textContent = jugadorActual;
+    
+        // Actualizar la UI
         actualizarUI();
+    
+        // Reiniciar el estado del cursor
+        actualizarEstadoCursor();
+    
+        // Reiniciar el temporizador
         reiniciarTemporizador();
+    
+        // Ocultar el modal de victoria
         modalVictoria.style.display = "none";
+    
+        // Remover clases de advertencia y peligro del temporizador
+        timerElement.classList.remove('warning', 'danger');
+    
+        // Desbloquear todos los micro-tableros
+        tableroDivs.forEach(tableroDiv => {
+            tableroDiv.classList.remove("bloqueado");
+        });
     }
 
     // Eventos
