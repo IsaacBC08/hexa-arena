@@ -1,45 +1,15 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // Configuración inicial
     const TIEMPO_INICIAL = 30;
     let move = new Audio('play.mp3');
-    let wind_zone = new Audio('win_zone.mp3');
-    wind_zone.volume = 0.5;
+    let wind_zone = new Audio('win_zone.mp3')
+    wind_zone.volume = 0.5
     let tiempoRestante = TIEMPO_INICIAL;
     let temporizador;
 
-    // Elementos del DOM
-    const tableroDivs = document.querySelectorAll(".micro-tablero");
-    const jugadorActualSpan = document.getElementById("jugador-actual");
-    const reiniciarBtn = document.getElementById("reiniciar");
-    const modalVictoria = document.getElementById("modal-victoria");
-    const mensajeVictoria = document.getElementById("mensaje-victoria");
-    const btnReiniciarModal = document.getElementById("close-modal");
-    const timerElement = document.getElementById("timer");
-
-    // Estado del juego
-    let tableroBase = {
-        'a': Array(9).fill(''),
-        'b': Array(9).fill(''),
-        'c': Array(9).fill(''),
-        'd': Array(9).fill(''),
-        'e': Array(9).fill(''),
-        'f': Array(9).fill(''),
-        'g': Array(9).fill(''),
-        'h': Array(9).fill(''),
-        'i': Array(9).fill('')
-    };
-
-    let tablerosGanados = {
-        'a': '', 'b': '', 'c': '', 'd': '', 'e': '', 'f': '', 'g': '', 'h': '', 'i': ''
-    };
-
-    let jugadorActual = "X";
-    let siguienteMicroTablero = null;
-
-    // Funciones de Temporizador
     function actualizarTiempoUI() {
         timerElement.textContent = tiempoRestante;
-
+    
+        // Cambiar el estilo según el tiempo restante
         if (tiempoRestante <= 10) {
             timerElement.classList.add('danger');
             timerElement.classList.remove('warning');
@@ -65,7 +35,42 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 1000);
     }
 
-    // Funciones de Juego
+    let tableroBase = {
+        'a': Array(9).fill(''),
+        'b': Array(9).fill(''),
+        'c': Array(9).fill(''),
+        'd': Array(9).fill(''),
+        'e': Array(9).fill(''),
+        'f': Array(9).fill(''),
+        'g': Array(9).fill(''),
+        'h': Array(9).fill(''),
+        'i': Array(9).fill('')
+    };
+
+    let tablerosGanados = {
+        'a': '', 'b': '', 'c': '', 'd': '', 'e': '', 'f': '', 'g': '', 'h': '', 'i': ''
+    };
+
+    let jugadorActual = "X";
+    let siguienteMicroTablero = null;
+
+    const tableroDivs = document.querySelectorAll(".micro-tablero");
+    const jugadorActualSpan = document.getElementById("jugador-actual");
+    const reiniciarBtn = document.getElementById("reiniciar");
+    const modalVictoria = document.getElementById("modal-victoria");
+    const mensajeVictoria = document.getElementById("mensaje-victoria");
+    const btnReiniciarModal = document.getElementById("close-modal");
+    const timerElement = document.getElementById("timer");
+
+    tableroDivs.forEach((tableroDiv) => {
+        for (let i = 0; i < 9; i++) {
+            const casilla = document.createElement("div");
+            casilla.dataset.index = i;
+            tableroDiv.appendChild(casilla);
+            casilla.addEventListener("click", () => manejarJugada(tableroDiv.id, i));
+        }
+    });
+
     function manejarJugada(microTablero, index) {
         if (tablerosGanados[microTablero] !== '' || (siguienteMicroTablero !== null && siguienteMicroTablero !== microTablero)) {
             return;
@@ -78,8 +83,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function realizarJugada(microTablero, index) {
         tableroBase[microTablero][index] = jugadorActual;
-        move.play();
+        move.play()
         actualizarUI();
+
 
         if (verificarVictoria(tableroBase[microTablero])) {
             marcarVictoria(microTablero);
@@ -104,6 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
         jugadorActualSpan.textContent = jugadorActual;
         actualizarEstadoCursor();
         reiniciarTemporizador();
+        
     }
 
     function actualizarUI() {
@@ -114,7 +121,7 @@ document.addEventListener("DOMContentLoaded", () => {
             tableroDiv.innerHTML = '';
 
             if (tablerosGanados[microTableroId] !== '') {
-                tableroDiv.innerHTML = `<div class="ganador ${tablerosGanados[microTableroId]}">${tablerosGanados[microTableroId]}</div>`;
+                tableroDiv.innerHTML = <div class="ganador ${tablerosGanados[microTableroId]}">${tablerosGanados[microTableroId]}</div>;
             } else {
                 for (let i = 0; i < 9; i++) {
                     const casilla = document.createElement("div");
@@ -131,9 +138,17 @@ document.addEventListener("DOMContentLoaded", () => {
     function actualizarEstadoCursor() {
         tableroDivs.forEach(tableroDiv => {
             if (siguienteMicroTablero === null) {
-                tableroDiv.classList.toggle("bloqueado", tablerosGanados[tableroDiv.id] !== '');
+                if (tablerosGanados[tableroDiv.id] === '') {
+                    tableroDiv.classList.remove("bloqueado");
+                } else {
+                    tableroDiv.classList.add("bloqueado");
+                }
             } else {
-                tableroDiv.classList.toggle("bloqueado", tableroDiv.id !== siguienteMicroTablero || tablerosGanados[tableroDiv.id] !== '');
+                if (tableroDiv.id === siguienteMicroTablero && tablerosGanados[tableroDiv.id] === '') {
+                    tableroDiv.classList.remove("bloqueado");
+                } else {
+                    tableroDiv.classList.add("bloqueado");
+                }
             }
         });
     }
@@ -163,7 +178,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function marcarVictoria(microTableroId) {
         tablerosGanados[microTableroId] = jugadorActual;
-        wind_zone.play();
+        wind_zone.play()
         actualizarUI();
     }
 
@@ -197,9 +212,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function mostrarModalVictoria(ganador, empate = false) {
-        mensajeVictoria.textContent = empate
-            ? "¡El juego ha terminado en empate!"
-            : `¡El jugador ${ganador} ha ganado el juego!`;
+        if (empate) {
+            mensajeVictoria.textContent = "¡El juego ha terminado en empate!";
+        } else {
+            mensajeVictoria.textContent = ¡El jugador ${ganador} ha ganado el juego!;
+        }
         modalVictoria.style.display = "flex";
     }
 
@@ -212,14 +229,44 @@ document.addEventListener("DOMContentLoaded", () => {
         siguienteMicroTablero = null;
         jugadorActualSpan.textContent = jugadorActual;
         actualizarUI();
+        actualizarEstadoCursor();
         reiniciarTemporizador();
         modalVictoria.style.display = "none";
     }
 
-    // Eventos
+
+    function realizarJugadaAleatoria() {
+        let movimientosDisponibles = [];
+
+        if (siguienteMicroTablero === null) {
+            Object.keys(tableroBase).forEach(microTableroId => {
+                if (tablerosGanados[microTableroId] === '') {
+                    tableroBase[microTableroId].forEach((casilla, index) => {
+                        if (casilla === '') {
+                            movimientosDisponibles.push({ microTablero: microTableroId, index });
+                        }
+                    });
+                }
+            });
+        } else {
+            const microTableroId = siguienteMicroTablero;
+            if (tablerosGanados[microTableroId] === '') {
+                tableroBase[microTableroId].forEach((casilla, index) => {
+                    if (casilla === '') {
+                        movimientosDisponibles.push({ microTablero: microTableroId, index });
+                    }
+                });
+            }
+        }
+
+        if (movimientosDisponibles.length > 0) {
+            const movimientoAleatorio = movimientosDisponibles[Math.floor(Math.random() * movimientosDisponibles.length)];
+            realizarJugada(movimientoAleatorio.microTablero, movimientoAleatorio.index);
+        }
+    }
+
     reiniciarBtn.addEventListener("click", reiniciarJuego);
     btnReiniciarModal.addEventListener("click", reiniciarJuego);
 
-    // Inicialización
     reiniciarJuego();
 });
