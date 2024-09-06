@@ -253,3 +253,64 @@ button:hover {
         background-color: #ffe0e0;
     }
 }
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+    /* Ajustar tamaño de las celdas del tablero */
+    #tablero-base {
+        grid-template-columns: repeat(3, 150px);
+        grid-template-rows: repeat(3, 150px);
+        gap: 10px;
+    }
+
+    /* Ajustar el tamaño de los divs dentro de cada micro-tablero */
+    .micro-tablero div {
+        font-size: 2em;
+    }
+
+    /* Ajustar el tamaño del título y el párrafo */
+    h1 {
+        font-size: 2em;
+    }
+
+    p {
+        font-size: 1.2em;
+    }
+
+    #timer {
+        font-size: 1.5em;
+    }
+
+    #jugador-actual {
+        font-size: 1.2em;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Ajustar aún más los tamaños para pantallas muy pequeñas */
+    #tablero-base {
+        grid-template-columns: repeat(3, 120px);
+        grid-template-rows: repeat(3, 120px);
+        gap: 5px;
+    }
+
+    .micro-tablero div {
+        font-size: 1.5em;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    p {
+        font-size: 1em;
+    }
+
+    #timer {
+        font-size: 1.2em;
+    }
+
+    #jugador-actual {
+        font-size: 1em;
+    }
+}
